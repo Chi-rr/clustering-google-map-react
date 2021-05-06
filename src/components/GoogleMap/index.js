@@ -35,7 +35,8 @@ export class GoogleMap extends React.PureComponent {
       maxZoom: 16,
       radius: 60,
     });
-
+    //console.log("this.state.mapOptions", this.state.mapOptions)
+    //console.log("this.state.mapOptions.zoom", this.state.mapOptions.zoom)
     return clusters(this.state.mapOptions);
   };
 
@@ -77,10 +78,15 @@ export class GoogleMap extends React.PureComponent {
           options={MAP.options}
           onChange={this.handleMapChange}
           yesIWantToUseGoogleMapApiInternals
-          bootstrapURLKeys={{ key: 'AIzaSyAS3ix4rVY4A-T4yPzWlEi766ycl2mY818' }}
+          bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_KEY }}
         >
           {this.state.clusters.map(item => {
+            const copy = [ ...item.points ]
+            const latMap = copy.map((poi) => poi.lat)
+            const lngMap = copy.map((poi) => poi.lng)
+            
             if (item.numPoints === 1) {
+              console.log('@@@marker@@@@')
               return (
                 <Marker
                   key={item.id}
@@ -88,16 +94,32 @@ export class GoogleMap extends React.PureComponent {
                   lng={item.points[0].lng}
                 />
               );
-            }
-
-            return (
-              <ClusterMarker
-                key={item.id}
-                lat={item.lat}
-                lng={item.lng}
-                points={item.points}
-              />
-            );
+            } else {
+              if (this.state.mapOptions.zoom < 10 ) {
+                console.log('###cluster###')
+                return (
+                  <ClusterMarker
+                    key={item.id}
+                    lat={item.lat}
+                    lng={item.lng}
+                    points={item.points}
+                  />
+                );
+              } else if (this.state.mapOptions.zoom === 10 && latMap[0] === latMap[1] && lngMap[0] === lngMap[1]) {
+                console.log('同じ緯度経度！')
+                item.points[1] = {id: item.points[1].id, lat: item.points[1].lat + 0.00005, lng: item.points[1].lng + 0.00005}
+                //console.log('item.points', item.points)
+                item.points.forEach(i =>
+                  {return (
+                    <Marker
+                    key={i.id}
+                    lat={i.lat}
+                    lng={i.lng}
+                    />
+                  )}
+                )
+              }
+            }            
           })}
         </GoogleMapReact>
       </MapWrapper>
