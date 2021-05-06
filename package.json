@@ -23,6 +23,7 @@
     "deploy": "gh-pages -b gh-pages -d build"
   },
   "devDependencies": {
+    "dotenv": "^6.2.0",
     "gh-pages": "^2.0.1"
   },
   "browserslist": {
