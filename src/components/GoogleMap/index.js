@@ -36,7 +36,7 @@ export class GoogleMap extends React.PureComponent {
       radius: 60,
     });
     //console.log("this.state.mapOptions", this.state.mapOptions)
-    //console.log("this.state.mapOptions.zoom", this.state.mapOptions.zoom)
+    console.log("this.state.mapOptions.zoom", this.state.mapOptions.zoom)
     return clusters(this.state.mapOptions);
   };
 
@@ -87,6 +87,11 @@ export class GoogleMap extends React.PureComponent {
             
             if (item.numPoints === 1) {
               console.log('@@@marker@@@@')
+              //console.log('Marker', <Marker
+              //      key={item.id}
+              //      lat={item.points[0].lat}
+              //      lng={item.points[0].lng}
+              //      />)
               return (
                 <Marker
                   key={item.id}
@@ -94,33 +99,124 @@ export class GoogleMap extends React.PureComponent {
                   lng={item.points[0].lng}
                 />
               );
-            } else {
-              if (this.state.mapOptions.zoom < 10 ) {
-                console.log('###cluster###')
-                return (
-                  <ClusterMarker
-                    key={item.id}
-                    lat={item.lat}
-                    lng={item.lng}
-                    points={item.points}
-                  />
-                );
-              } else if (this.state.mapOptions.zoom === 10 && latMap[0] === latMap[1] && lngMap[0] === lngMap[1]) {
-                console.log('同じ緯度経度！')
-                item.points[1] = {id: item.points[1].id, lat: item.points[1].lat + 0.00005, lng: item.points[1].lng + 0.00005}
-                //console.log('item.points', item.points)
-                item.points.forEach(i =>
-                  {return (
-                    <Marker
-                    key={i.id}
-                    lat={i.lat}
-                    lng={i.lng}
+            } else if (latMap[0] === latMap[1] && lngMap[0] === lngMap[1]) {
+                //console.log('同じ緯度経度！')
+                if (this.state.mapOptions.zoom < 10) {
+                  console.log('###同じ緯度経度のcluster###')
+                  return (
+                    <ClusterMarker
+                      key={item.id}
+                      lat={item.lat}
+                      lng={item.lng}
+                      points={item.points}
                     />
-                  )}
-                )
+                  );
+                } else {
+                  console.log('@@@@@同じ緯度経度のmarker@@@@@')
+                  //console.log('item', item)
+                  item.points[1] = {id: item.points[1].id, lat: item.points[1].lat + 0.5, lng: item.points[1].lng + 0.5}
+                  console.log('item.points[0].id', item.points[0].id)
+
+                  // マーカー一つしか返されない
+                  //for (let i of item.points) {
+                  //  //console.log('item.points', item.points)
+                  //  //console.log('i', i)
+                  //  return (
+                  //    <Marker
+                  //      key={i.id}
+                  //      lat={i.lat}
+                  //      lng={i.lng}
+                  //    />
+                  //  )
+                  //}
+
+
+                  // returnでマーカー二つ返せるかやってみたが、エラー
+                  //return(
+                  //  <>
+                  //    <Marker
+                  //      key={item.id}
+                  //      lat={item.points[0].lat}
+                  //      lng={item.points[0].lng}
+                  //    />
+                  //    <Marker
+                  //      key={item.points[1].id}
+                  //      lat={item.points[1].lat}
+                  //      lng={item.points[1].lng}
+                  //    />
+                  //  </>
+                  //)
+
+
+                  // 配列の一つ目しかマーカー表示されない
+                  const markersArray = item.points.map(i =>
+                   <Marker
+                     key={i.id}
+                     lat={i.lat}
+                     lng={i.lng}
+                   />
+                  )             
+                  console.log('markersArray', markersArray)     
+                  return (markersArray[0])
+
+
+                  // forEachの返り値はundefined
+                  //item.points.forEach(i => 
+                    //console.log('marker', <Marker key={i.id} lat={i.lat} lng={i.lng}/>
+                    //{return (
+                    //<Marker
+                    //  key={i.id}
+                    //  lat={i.lat}
+                    //  lng={i.lng}
+                    ///>)}
+                  //)
+
+
+                  // こういうことではなかった
+                  //for (let it of item.points) {
+                  //    console.log('外')
+                  //  for (let i = 0; i <= item.numPoints; i++ ) {
+                  //    console.log(i + '回目のループin')
+                  //    return (
+                  //      <Marker
+                  //        key={it.id}
+                  //        lat={it.lat}
+                  //        lng={it.lng}
+                  //      />
+                  //    )
+                  //  }
+                  //}          
+
+
+                  // points分、マーカーを作成するまでループしたい
+                  // こういうことでもなかった
+                  //  let count = 0
+                  //  for (let i of item.points) {
+                  //    console.log('item.numPoints', item.numPoints)
+                  //    while (count <= item.numPoints) {
+                  //      count ++;
+                  //      console.log('count', count)
+                  //      return (<Marker
+                  //        key={i.id}
+                  //        lat={i.lat}
+                  //        lng={i.lng}
+                  //      />)
+                  //    }
+                  //  }
               }
-            }            
-          })}
+            } else {
+              console.log('###cluster###')
+              return (
+                <ClusterMarker
+                  key={item.id}
+                  lat={item.lat}
+                  lng={item.lng}
+                  points={item.points}
+                />
+              );              
+            }         
+          }
+        )}
         </GoogleMapReact>
       </MapWrapper>
     );
